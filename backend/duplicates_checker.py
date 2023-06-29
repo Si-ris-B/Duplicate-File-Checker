@@ -102,7 +102,7 @@ def get_duplicate_files_hashes_and_count(files_by_size):
 
     Returns:
         Dict: Dictionary to store file hashes and associated filenames
-        int: The count of unique file hashes.
+        int: The count of duplicate file hashes.
     """
 
     # Calculate the total count of files with length greater than or equal to 2 in each category
@@ -110,12 +110,8 @@ def get_duplicate_files_hashes_and_count(files_by_size):
     # Initialize a variable to store the count of qualifying files
     qualifying_file_count = sum([len(files) for category, files in files_by_size.items() if len(files) >= 2])
 
-    # Create an empty list to store file lengths
-    file_lengths = []
-
-    duplicate_file_count = 0  # Initialize count of duplicate files
-    hashes_on_1k = {}  # Dictionary to store file hashes and associated filenames
-    hashes_on_1k_num = 0  # Count of unique file hashes
+    hashes_on_1k = defaultdict(list)  # Dictionary to store file hashes and associated filenames
+    hashes_on_1k_num = 0  # Count of duplicate file hashes
 
     for size, files in files_by_size.items():
         if len(files) < 2:
@@ -123,17 +119,11 @@ def get_duplicate_files_hashes_and_count(files_by_size):
             continue
 
         for filename in files:
-            file_lengths.append(filename)  # Append filename to the list of all files
-
             try:
                 small_hash = get_hash(filename, first_chunk_only=True)  # Calculate the hash of the first chunk of the file
 
-                if small_hash in hashes_on_1k:
-                    # Add the filename to the list of filenames associated with the existing hash
-                    hashes_on_1k[small_hash].append(filename)
-                else:
-                    # Create a new hash entry with the filename as the first element in the list of filenames
-                    hashes_on_1k[small_hash] = [filename]
+                # Add the filename to the list of filenames associated with the existing hash                
+                hashes_on_1k[small_hash].append(filename)
 
                 # Increment the count of unique file hashes
                 hashes_on_1k_num += 1
