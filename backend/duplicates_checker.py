@@ -171,7 +171,7 @@ def find_duplicate_files(hashes_on_1k):
     total_files = sum([len(files) for hashes, files in hashes_on_1k.items() if len(files) >= 2])
     unique_file_hashes = defaultdict(list)  # Dictionary to store unique file hashes and their corresponding filenames
     total_file_size = 0  # Total size of all duplicate files
-    duplicate_files = []
+    duplicate_files_list = []
 
     try:
         for hash_1k, files in hashes_on_1k.items():
@@ -204,7 +204,7 @@ def find_duplicate_files(hashes_on_1k):
 
                 unique_file_hashes[str(full_hash)].append(filename)
                 total_file_size += size
-                duplicate_files.append(data)
+                duplicate_files_list.append(data)
 
 
         return duplicate_files, unique_file_hashes  # Return the duplicate file data and unique file hashes
