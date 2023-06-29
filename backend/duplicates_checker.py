@@ -2,7 +2,6 @@ import sys
 import os
 import hashlib
 from datetime import datetime
-import logging
 import math
 from collections import defaultdict
 
@@ -28,7 +27,6 @@ def get_hash(filename, first_chunk_only=False, hash_algorithm=hashlib.sha1):
 
     return hashed
 
-
 def chunk_reader(file, chunk_size=51200):
     """
     A helper generator function to read file in chunks.
@@ -39,6 +37,16 @@ def chunk_reader(file, chunk_size=51200):
         if not chunk:
             break
         yield chunk
+
+def convert_size(size_bytes):
+    """function to convert bytes to readable format"""
+    if size_bytes == 0:
+        return "0 B"
+    size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+    i = int(math.floor(math.log(size_bytes, 1024)))
+    p = math.pow(1024, i)
+    s = round(size_bytes / p, 2)
+    return "%s %s" % (s, size_name[i])
 
 def get_files_by_size(paths):
     """
