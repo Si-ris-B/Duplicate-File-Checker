@@ -48,6 +48,19 @@ def convert_size(size_bytes):
     s = round(size_bytes / p, 2)
     return "%s %s" % (s, size_name[i])
 
+def creation_date(path_to_file):
+    
+    if platform.system() == 'Windows':
+        return os.path.getctime(path_to_file)
+    else:
+        stat = os.stat(path_to_file)
+        try:
+            return stat.st_birthtime
+        except AttributeError:
+            # We're probably on Linux. No easy way to get creation dates here,
+            # so we'll settle for when its content was last modified.
+            return stat.st_mtime
+
 def get_files_by_size(paths):
     """
     Recursively scans the directories specified in 'paths' and returns a dictionary that groups files by their size.
@@ -160,7 +173,7 @@ def find_duplicate_files(hashes_on_1k):
     total_file_size = 0  # Total size of all duplicate files
 
     try:
-        for _, files in hashes_on_1k.items():
+        for hash_1k, files in hashes_on_1k.items():
             if len(files) < 2:
                 continue  # Skip files that don't have duplicates
 
@@ -175,14 +188,17 @@ def find_duplicate_files(hashes_on_1k):
                 size = os.path.getsize(filename)
                 filesize = convert_size(size)
                 creation = datetime.fromtimestamp(os.path.getctime(filename))
+                modification = datetime.fromtimestamp(os.path.getctime(filename))
 
                 # Store data of the duplicate file
                 data = {
-                    'hash': full_hash,
-                    'filename': filename,
-                    'size': size,
-                    'filesize': filesize,
-                    'creation': creation
+                    'Hash': full_hash,
+                    'FileName': filename,
+                    'Size': filesize,
+                    'Size In Bytes': size,
+                    'Hash on 1k': hash_1k,
+                    'Modified Date': modification,
+                    'Creation Date': creation
                 }
 
                 unique_file_hashes[str(full_hash)].append(filename)
