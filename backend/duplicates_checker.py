@@ -133,3 +133,54 @@ def get_duplicate_files_hashes_and_count(files_by_size):
                 continue
 
     return hashes_on_1k, hashes_on_1k_num
+
+def find_duplicate_files(hashes_on_1k):
+    """
+    Finds duplicate files based on hash values. For all files with the hash on the 1st 1024 bytes, get their hash on the full file - collisions will be duplicates
+
+    Args:
+        hashes_on_1k (dict): A dictionary containing file hashes as keys and a list of corresponding filenames as values.
+
+    Returns:
+        tuple: A tuple containing the data of the duplicate file and a dictionary containing unique file hashes 
+               as keys and a list of corresponding filenames as values.
+    """
+    duplicate_files_count = 0  # Counter for duplicate file occurrences
+    
+    total_files = sum([len(files) for hashes, files in hashes_on_1k.items() if len(files) >= 2])
+    unique_file_hashes = defaultdict(list)  # Dictionary to store unique file hashes and their corresponding filenames
+    total_file_size = 0  # Total size of all duplicate files
+
+    try:
+        for _, files in hashes_on_1k.items():
+            if len(files) < 2:
+                continue  # Skip files that don't have duplicates
+
+            for filename in files:
+                try:
+                    full_hash = get_hash(filename, first_chunk_only=False)  # Calculate the file's hash
+                except OSError:
+                    # The file access might have changed until this point, so continue to the next file
+                    continue
+
+                duplicate_files_count += 1
+                size = os.path.getsize(filename)
+                filesize = convert_size(size)
+                creation = datetime.fromtimestamp(os.path.getctime(filename))
+
+                # Store data of the duplicate file
+                data = {
+                    'hash': full_hash,
+                    'filename': filename,
+                    'size': size,
+                    'filesize': filesize,
+                    'creation': creation
+                }
+
+                unique_file_hashes[str(full_hash)].append(filename)
+                total_file_size += size
+
+        return data, unique_file_hashes  # Return the duplicate file data and unique file hashes
+
+    except OSError:
+        print("An error occurred while accessing files. Please try again.")
