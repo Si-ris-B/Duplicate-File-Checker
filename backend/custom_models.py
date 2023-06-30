@@ -73,3 +73,28 @@ class PandasModel(QAbstractTableModel):
 
     def flags(self, index):
         return Qt.ItemIsEnabled|Qt.ItemIsSelectable|Qt.ItemIsEditable
+
+class SearchProxyModel(QSortFilterProxyModel):
+
+    """proxy model to search for the files in one column"""
+
+    def setFilterRegExp(self, pattern):
+        if isinstance(pattern, str):
+            pattern = QtCore.QRegExp(
+                pattern, Qt.CaseInsensitive,
+                QtCore.QRegExp.FixedString)
+        super(SearchProxyModel, self).setFilterRegExp(pattern)
+
+    def _accept_index(self, idx):
+        if idx.isValid():
+            text = idx.data(Qt.DisplayRole)
+            if self.filterRegExp().indexIn(text) >= 0:
+                return True
+            for row in range(idx.model().rowCount(idx)):
+                if self._accept_index(idx.model().index(row, 0, idx)):
+                    return True
+        return False
+
+    def filterAcceptsRow(self, sourceRow, sourceParent):
+        idx = self.sourceModel().index(sourceRow, 0, sourceParent)
+        return self._accept_index(idx)
