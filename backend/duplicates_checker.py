@@ -4,8 +4,7 @@ import hashlib
 from datetime import datetime
 import math
 from collections import defaultdict
-
-import hashlib
+import platform
 
 def get_hash(filename, first_chunk_only=False, hash_algorithm=hashlib.sha1):
     # Create an instance of the specified hash algorithm
