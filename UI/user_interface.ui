@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1051</width>
-    <height>809</height>
+    <height>834</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -69,29 +69,17 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="0">
-     <widget class="QSplitter" name="splitter_7">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+    <item row="4" column="1">
+     <widget class="QTableView" name="duplicatesView_3">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>300</height>
+       </size>
       </property>
-      <widget class="QComboBox" name="comboBox">
-       <property name="maximumSize">
-        <size>
-         <width>109</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <item>
-        <property name="text">
-         <string>Full Hash</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Hash on 1k</string>
-        </property>
-       </item>
-      </widget>
+      <property name="sortingEnabled">
+       <bool>true</bool>
+      </property>
      </widget>
     </item>
     <item row="3" column="0" colspan="2">
@@ -337,20 +325,78 @@
       </widget>
      </widget>
     </item>
-    <item row="4" column="0">
-     <widget class="QGraphicsView" name="visualizationView"/>
+    <item row="2" column="0">
+     <widget class="QSplitter" name="splitter_7">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QComboBox" name="comboBox">
+       <property name="maximumSize">
+        <size>
+         <width>109</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <item>
+        <property name="text">
+         <string>Full Hash</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Hash on 1k</string>
+        </property>
+       </item>
+      </widget>
+     </widget>
     </item>
-    <item row="4" column="1">
-     <widget class="QTableView" name="duplicatesView_3">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>300</height>
-       </size>
+    <item row="4" column="0">
+     <widget class="QWidget" name="visualizationView" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
-      <property name="sortingEnabled">
-       <bool>true</bool>
-      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QSplitter" name="splitter_8">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <widget class="QLabel" name="label_9">
+          <property name="text">
+           <string>Analyzing Files: Tracking Progress</string>
+          </property>
+         </widget>
+         <widget class="QProgressBar" name="progressBar_1">
+          <property name="value">
+           <number>0</number>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>Analyzing hashes on 1k :</string>
+          </property>
+         </widget>
+         <widget class="QProgressBar" name="progressBar_2">
+          <property name="value">
+           <number>0</number>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>Analyzing full hashes : </string>
+          </property>
+         </widget>
+         <widget class="QProgressBar" name="progressBar_3">
+          <property name="value">
+           <number>0</number>
+          </property>
+         </widget>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
