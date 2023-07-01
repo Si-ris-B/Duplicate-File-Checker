@@ -4,6 +4,17 @@ from datetime import datetime
 import math
 from collections import defaultdict
 import platform
+from concurrent.futures import ThreadPoolExecutor
+
+def count_files(directory):
+    count = 0
+    with ThreadPoolExecutor() as executor:
+        for entry in os.scandir(directory):
+            if entry.is_file():
+                count += 1
+            elif entry.is_dir():
+                count += executor.submit(count_files, entry.path).result()
+    return count
 
 def get_hash(filename, first_chunk_only=False, hash_algorithm=hashlib.sha1):
     # Create an instance of the specified hash algorithm
@@ -59,7 +70,7 @@ def creation_date(path_to_file):
             # so we'll settle for when its content was last modified.
             return stat.st_mtime
 
-def get_files_by_size(path):
+def get_files_by_size(path, progress_callback):
     """
     Recursively scans the directories specified in 'path' and returns a dictionary that groups files by their size.
 
@@ -74,6 +85,8 @@ def get_files_by_size(path):
     # Initialize counters and data structures
     file_count = 0
     files_by_size = defaultdict(list)
+
+    total_files = count_files(path)
 
     # Walk through the directory tree rooted at 'path'
     for dirpath, dirnames, filenames in os.walk(path):
@@ -102,13 +115,15 @@ def get_files_by_size(path):
 
                 # Append the file path to the list associated with the file size
                 files_by_size[file_size].append(real_file_path)
+                # Call the progress callback to update the progress
+                progress_callback(file_count, total_files)
 
             except OSError:
                 # If the file is not accessible due to permissions or other reasons,
                 # continue to the next file
                 continue
-
-    return files_by_size, file_count
+            
+    return files_by_size, file_count, total_files
 
 def get_duplicate_files_hashes_and_count(files_by_size):
     """
