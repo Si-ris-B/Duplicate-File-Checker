@@ -190,7 +190,7 @@ def find_duplicate_files(hashes_on_1k):
                 # Store data of the duplicate file
                 data = {
                     'Hash': full_hash,
-                    'FileName': filename,
+                    'FilePath': filename,
                     'Size': filesize,
                     'Size In Bytes': size,
                     'Hash on 1k': hash_1k,

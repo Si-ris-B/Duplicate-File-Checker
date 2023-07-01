@@ -1,5 +1,6 @@
 import pandas as pd
 import math
+from pathlib import Path
 
 class PandasManager():
 
@@ -12,6 +13,7 @@ class PandasManager():
         self._dataframe['Total Hashes'] = self._dataframe['Hash'].map(self._dataframe['Hash'].value_counts())
         self._dataframe['Total 1k Hashes'] = self._dataframe['Hash on 1k'].map(self._dataframe['Hash on 1k'].value_counts())
         
+        self._dataframe['File Name'] = self._dataframe['FilePath'].apply(lambda x: Path(x).name)
         
         self.column_group_full_hash, self.median_group_by_full_hash = self.group_dataframe_by_column('Hash')
         self.column_group_1k, self.median_group_by_1k_hash = self.group_dataframe_by_column('Hash on 1k')
