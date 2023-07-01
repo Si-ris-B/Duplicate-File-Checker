@@ -224,15 +224,18 @@ class MyMainWindow(QMainWindow):
         
         df = self.pandas_data.get_dataframe_copy()
 
+        self.duplicatesView.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.duplicatesView.customContextMenuRequested.connect(self.showContextMenu)
+
         model = PandasModel(df)
 
         self.duplicatesView.setModel(model)
 
-        self.groupby_duplicatesView.horizontalHeader().setStretchLastSection(True)
-        self.groupby_duplicatesView.setAlternatingRowColors(True)
-        self.groupby_duplicatesView.setSelectionBehavior(QTableView.SelectRows)
-        self.groupby_duplicatesView.setSortingEnabled(True)
-        self.groupby_duplicatesView.sortByColumn(4,Qt.DescendingOrder)
+        self.duplicatesView.horizontalHeader().setStretchLastSection(True)
+        self.duplicatesView.setAlternatingRowColors(True)
+        self.duplicatesView.setSelectionBehavior(QTableView.SelectRows)
+        self.duplicatesView.setSortingEnabled(True)
+        self.duplicatesView.sortByColumn(4,Qt.DescendingOrder)
 
     def set_unique_info(self, value, idex):
 
@@ -277,6 +280,22 @@ class MyMainWindow(QMainWindow):
         # Update the progress bar value
         percentage = int((progress / total) * 100)
         self.progress_bar_3.setValue(percentage)
+
+    def showContextMenu(self, pos):
+        current_item = self.duplicatesView.indexAt(pos)
+        if current_item is not None:
+            row = current_item.row()
+            menu = QMenu(self)
+
+            delete_action = QAction("Delete", self)
+            delete_action.triggered.connect(lambda: self.deleteRow(row))
+            menu.addAction(delete_action)
+
+            perm_delete_action = QAction("Permanent Delete", self)
+            perm_delete_action.triggered.connect(lambda: self.permanentDeleteRow(row))
+            menu.addAction(perm_delete_action)
+
+            menu.exec_(self.duplicatesView.viewport().mapToGlobal(pos))
 
 
 if __name__ == "__main__":
