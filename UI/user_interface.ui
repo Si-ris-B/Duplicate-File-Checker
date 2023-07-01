@@ -62,6 +62,80 @@
       </widget>
      </widget>
     </item>
+    <item row="4" column="0">
+     <widget class="QWidget" name="visualizationView" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QSplitter" name="splitter_8">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <widget class="QLabel" name="label_9">
+          <property name="text">
+           <string>Analyzing Files: Tracking Progress</string>
+          </property>
+         </widget>
+         <widget class="QProgressBar" name="progressBar_1">
+          <property name="value">
+           <number>0</number>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>Analyzing hashes on 1k :</string>
+          </property>
+         </widget>
+         <widget class="QProgressBar" name="progressBar_2">
+          <property name="value">
+           <number>0</number>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>Analyzing full hashes : </string>
+          </property>
+         </widget>
+         <widget class="QProgressBar" name="progressBar_3">
+          <property name="value">
+           <number>0</number>
+          </property>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QSplitter" name="splitter_7">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QComboBox" name="comboBox">
+       <property name="maximumSize">
+        <size>
+         <width>109</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <item>
+        <property name="text">
+         <string>Full Hash</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Hash on 1k</string>
+        </property>
+       </item>
+      </widget>
+     </widget>
+    </item>
     <item row="1" column="0" colspan="2">
      <widget class="Line" name="line">
       <property name="orientation">
@@ -125,9 +199,15 @@
           </property>
           <item>
            <widget class="QLabel" name="label">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="maximumSize">
              <size>
-              <width>180</width>
+              <width>205</width>
               <height>16777215</height>
              </size>
             </property>
@@ -140,7 +220,7 @@
            <widget class="QLabel" name="label_4">
             <property name="maximumSize">
              <size>
-              <width>180</width>
+              <width>205</width>
               <height>16777215</height>
              </size>
             </property>
@@ -153,7 +233,7 @@
            <widget class="QLabel" name="label_2">
             <property name="maximumSize">
              <size>
-              <width>180</width>
+              <width>205</width>
               <height>16777215</height>
              </size>
             </property>
@@ -166,7 +246,7 @@
            <widget class="QLabel" name="label_3">
             <property name="maximumSize">
              <size>
-              <width>180</width>
+              <width>205</width>
               <height>16777215</height>
              </size>
             </property>
@@ -237,22 +317,34 @@
           </property>
           <item>
            <widget class="QLabel" name="label_5">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="maximumSize">
              <size>
-              <width>180</width>
+              <width>222</width>
               <height>16777215</height>
              </size>
             </property>
             <property name="text">
-             <string>Total Size for Chosen Duplicate</string>
+             <string>Total Size for Chosen Duplicate : </string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QLabel" name="label_6">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="maximumSize">
              <size>
-              <width>180</width>
+              <width>255</width>
               <height>16777215</height>
              </size>
             </property>
@@ -263,9 +355,15 @@
           </item>
           <item>
            <widget class="QLabel" name="label_7">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="maximumSize">
              <size>
-              <width>180</width>
+              <width>240</width>
               <height>16777215</height>
              </size>
             </property>
@@ -323,80 +421,6 @@
         </widget>
        </widget>
       </widget>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="QSplitter" name="splitter_7">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <widget class="QComboBox" name="comboBox">
-       <property name="maximumSize">
-        <size>
-         <width>109</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <item>
-        <property name="text">
-         <string>Full Hash</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Hash on 1k</string>
-        </property>
-       </item>
-      </widget>
-     </widget>
-    </item>
-    <item row="4" column="0">
-     <widget class="QWidget" name="visualizationView" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="0">
-        <widget class="QSplitter" name="splitter_8">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <widget class="QLabel" name="label_9">
-          <property name="text">
-           <string>Analyzing Files: Tracking Progress</string>
-          </property>
-         </widget>
-         <widget class="QProgressBar" name="progressBar_1">
-          <property name="value">
-           <number>0</number>
-          </property>
-         </widget>
-         <widget class="QLabel" name="label_10">
-          <property name="text">
-           <string>Analyzing hashes on 1k :</string>
-          </property>
-         </widget>
-         <widget class="QProgressBar" name="progressBar_2">
-          <property name="value">
-           <number>0</number>
-          </property>
-         </widget>
-         <widget class="QLabel" name="label_11">
-          <property name="text">
-           <string>Analyzing full hashes : </string>
-          </property>
-         </widget>
-         <widget class="QProgressBar" name="progressBar_3">
-          <property name="value">
-           <number>0</number>
-          </property>
-         </widget>
-        </widget>
-       </item>
-      </layout>
      </widget>
     </item>
    </layout>
