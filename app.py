@@ -7,7 +7,25 @@ from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 
 from backend.custom_models import PandasModel
+from backend.duplicates_checker import search_duplicate_files
 
+class WorkerKilledException(Exception):
+    pass
+
+
+class WorkerSignals(QObject):
+    finished = Signal()
+
+class Worker(QObject):
+
+    def __init__(self, paths):
+        super().__init__()
+        self.paths = paths
+        self.signals = WorkerSignals()
+
+    def process(self):
+        search_duplicate_files(self.paths)
+        self.signals.finished.emit()   
 
 class MyMainWindow(QMainWindow):
     def __init__(self):
@@ -15,8 +33,11 @@ class MyMainWindow(QMainWindow):
         self.load_ui()
         self.assignVariables()
 
+        self.worker_thread = QThread()
         self.folderButton.clicked.connect(self.openFolderDialog)
-
+        self.openButton.clicked.connect(self.execute_function)
+        
+        
     def load_ui(self):
         ui_file_name = "UI/user_interface.ui"
         ui_file = QFile(ui_file_name)
@@ -42,7 +63,6 @@ class MyMainWindow(QMainWindow):
         self.folderButton = self.window.findChild(QToolButton, 'folderButton')
         self.openButton = self.window.findChild(QPushButton, 'openButton')
 
-
         # Qlabels
         self.total_size = self.window.findChild(QLabel, 'total_size')
         self.total_duplicate_size = self.window.findChild(QLabel, 'total_duplicate_size')
@@ -62,6 +82,24 @@ class MyMainWindow(QMainWindow):
         dialog.setFileMode(QFileDialog.Directory)
         folderPath = dialog.getExistingDirectory(self, "Select Folder")
         self.folderEdit.setText(folderPath)
+
+    def execute_function(self):
+        paths = self.folderEdit.text()
+        if not self.worker_thread.isRunning():
+            self.worker = Worker(paths)
+
+            self.worker.signals = WorkerSignals()
+            self.worker.signals.finished.connect(self.on_worker_finished)
+
+            self.worker.moveToThread(self.worker_thread)
+            self.worker_thread.started.connect(self.worker.process)
+
+            self.worker_thread.start()
+
+    def on_worker_finished(self):
+        print("Task completed")
+        self.worker_thread.quit()
+        self.worker_thread.wait()
 
 
 if __name__ == "__main__":
