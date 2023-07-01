@@ -15,6 +15,8 @@ class MyMainWindow(QMainWindow):
         self.load_ui()
         self.assignVariables()
 
+        self.folderButton.clicked.connect(self.openFolderDialog)
+
     def load_ui(self):
         ui_file_name = "UI/user_interface.ui"
         ui_file = QFile(ui_file_name)
@@ -54,6 +56,12 @@ class MyMainWindow(QMainWindow):
         #LineEdit
         self.folderEdit = self.window.findChild(QLineEdit, 'folderEdit')
         self.comboBox = self.window.findChild(QComboBox, 'comboBox')
+
+    def openFolderDialog(self):
+        dialog = QFileDialog()
+        dialog.setFileMode(QFileDialog.Directory)
+        folderPath = dialog.getExistingDirectory(self, "Select Folder")
+        self.folderEdit.setText(folderPath)
 
 
 if __name__ == "__main__":
