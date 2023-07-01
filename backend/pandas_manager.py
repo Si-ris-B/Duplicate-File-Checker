@@ -6,8 +6,12 @@ class PandasManager():
     def __init__(self, list_of_dicts):
         
         self._dataframe = pd.DataFrame.from_dict(list_of_dicts)
+        
+        self._dataframe['Hash'] = self._dataframe['Hash'].astype(str)
+        self._dataframe['Hash on 1k'] = self._dataframe['Hash on 1k'].astype(str)
         self._dataframe['Total Hashes'] = self._dataframe['Hash'].map(self._dataframe['Hash'].value_counts())
         self._dataframe['Total 1k Hashes'] = self._dataframe['Hash on 1k'].map(self._dataframe['Hash on 1k'].value_counts())
+        
         
         self.column_group_full_hash, self.median_group_by_full_hash = self.group_dataframe_by_column('Hash')
         self.column_group_1k, self.median_group_by_1k_hash = self.group_dataframe_by_column('Hash on 1k')
@@ -36,6 +40,7 @@ class PandasManager():
 
         modified_df = group_df.reset_index()
         modified_df['Size'] = modified_df['Size In Bytes'].apply(self.get_readable_size)
+        
 
         return modified_df
 
