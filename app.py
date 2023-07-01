@@ -15,7 +15,8 @@ class WorkerKilledException(Exception):
     pass
 
 class WorkerSignals(QObject):
-    finished = Signal(list)
+    finished = Signal(list, int)
+    progress1 = Signal(int, int)
 
 class Worker(QObject):
 
@@ -24,9 +25,13 @@ class Worker(QObject):
         self.paths = paths
         self.signals = WorkerSignals()
 
+    @Slot()
     def process(self):
-        result = search_duplicate_files(self.paths)
-        self.signals.finished.emit(result)
+        files_by_size, progress, total_files = get_files_by_size(self.paths, self.update_progress_1)    
+        self.signals.finished.emit(files_by_size, total_files)
+
+    def update_progress_1(self, progress, total):
+        self.signals.progress1.emit(progress, total)
 
 class MyMainWindow(QMainWindow):
     def __init__(self):
@@ -93,11 +98,14 @@ class MyMainWindow(QMainWindow):
 
     def execute_function(self):
         paths = self.folderEdit.text()
+        self.progress_bar_1.setValue(0)
+
         if not self.worker_thread.isRunning():
             self.worker = Worker(paths)
 
             self.worker.signals = WorkerSignals()
             self.worker.signals.finished.connect(self.on_worker_finished)
+            self.worker.signals.progress1.connect(self.update_progress_1)
 
             self.worker.moveToThread(self.worker_thread)
             self.worker_thread.started.connect(self.worker.process)
@@ -106,10 +114,10 @@ class MyMainWindow(QMainWindow):
 
     def on_worker_finished(self, result):
         # Process the received data (list of dictionaries) here
-        self.pandas_data = PandasManager(result)
-        self.show_hash_grouped_table(0)
-        self.show_specific_data()
-        self.show_all_data()
+        # self.pandas_data = PandasManager(result)
+        # self.show_hash_grouped_table(0)
+        # self.show_specific_data()
+        # self.show_all_data()
 
         self.worker_thread.quit()
         self.worker_thread.wait()
@@ -225,6 +233,12 @@ class MyMainWindow(QMainWindow):
             self.searchModel.setFilterKeyColumn(4)
         self.searchModel.setFilterFixedString(value) 
         self.set_unique_info(value, idx)
+
+    @Slot(int, int)
+    def update_progress_1(self, progress, total):
+        # Update the progress bar value
+        percentage = int((progress / total) * 100)
+        self.progress_bar_1.setValue(percentage)
 
 
 if __name__ == "__main__":
