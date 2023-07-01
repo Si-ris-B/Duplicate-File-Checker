@@ -8,7 +8,7 @@ from PySide6.QtCore import *
 import math
 
 from backend.custom_models import PandasModel, SearchProxyModel, CustomProxyModel
-from backend.duplicates_checker import search_duplicate_files
+from backend.duplicates_checker import *
 from backend.pandas_manager import PandasManager
 
 class WorkerKilledException(Exception):
@@ -26,7 +26,7 @@ class Worker(QObject):
 
     def process(self):
         result = search_duplicate_files(self.paths)
-        self.signals.finished.emit(result)   
+        self.signals.finished.emit(result)
 
 class MyMainWindow(QMainWindow):
     def __init__(self):
@@ -79,6 +79,11 @@ class MyMainWindow(QMainWindow):
         #LineEdit
         self.folderEdit = self.window.findChild(QLineEdit, 'folderEdit')
         self.comboBox = self.window.findChild(QComboBox, 'comboBox')
+
+        #ProgressBar
+        self.progress_bar_1 =  self.window.findChild(QProgressBar, 'progressBar_1')
+        self.progress_bar_2 =  self.window.findChild(QProgressBar, 'progressBar_2')
+        self.progress_bar_3 =  self.window.findChild(QProgressBar, 'progressBar_3')
 
     def openFolderDialog(self):
         dialog = QFileDialog()
