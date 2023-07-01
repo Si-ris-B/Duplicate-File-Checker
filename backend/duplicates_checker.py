@@ -59,12 +59,12 @@ def creation_date(path_to_file):
             # so we'll settle for when its content was last modified.
             return stat.st_mtime
 
-def get_files_by_size(paths):
+def get_files_by_size(path):
     """
-    Recursively scans the directories specified in 'paths' and returns a dictionary that groups files by their size.
+    Recursively scans the directories specified in 'path' and returns a dictionary that groups files by their size.
 
     Args:
-        paths (list): List of directory paths to scan.
+        path (str):Directory path to scan.
 
     Returns:
         dict: Dictionary containing file paths grouped by their respective sizes.
@@ -75,40 +75,38 @@ def get_files_by_size(paths):
     file_count = 0
     files_by_size = defaultdict(list)
 
-    # Iterate over each path in the list of paths
-    for path in paths:
-        # Walk through the directory tree rooted at 'path'
-        for dirpath, dirnames, filenames in os.walk(path):
-            # Iterate over each filename in the current directory
-            for filename in filenames:
-                file_count += 1
+    # Walk through the directory tree rooted at 'path'
+    for dirpath, dirnames, filenames in os.walk(path):
+        # Iterate over each filename in the current directory
+        for filename in filenames:
+            file_count += 1
 
-                # Generate the full path to the current file
-                file_path = os.path.join(dirpath, filename)
+            # Generate the full path to the current file
+            file_path = os.path.join(dirpath, filename)
 
-                try:
-                    # Get the real (canonical) path of the file
-                    real_file_path = os.path.realpath(file_path)
+            try:
+                # Get the real (canonical) path of the file
+                real_file_path = os.path.realpath(file_path)
 
-                    # Get the size of the file in bytes
-                    file_size = os.path.getsize(real_file_path)
+                # Get the size of the file in bytes
+                file_size = os.path.getsize(real_file_path)
 
-                    # Ignore files smaller than 1024 bytes
-                    if file_size < 1024:
-                        continue
-
-                    # Add the file path to the dictionary using the file size as the key
-                    if file_size not in files_by_size:
-                        # Initialize an empty list for the file size if it doesn't exist
-                        files_by_size[file_size] = []
-
-                    # Append the file path to the list associated with the file size
-                    files_by_size[file_size].append(real_file_path)
-
-                except OSError:
-                    # If the file is not accessible due to permissions or other reasons,
-                    # continue to the next file
+                # Ignore files smaller than 1024 bytes
+                if file_size < 1024:
                     continue
+
+                # Add the file path to the dictionary using the file size as the key
+                if file_size not in files_by_size:
+                    # Initialize an empty list for the file size if it doesn't exist
+                    files_by_size[file_size] = []
+
+                # Append the file path to the list associated with the file size
+                files_by_size[file_size].append(real_file_path)
+
+            except OSError:
+                # If the file is not accessible due to permissions or other reasons,
+                # continue to the next file
+                continue
 
     return files_by_size, file_count
 
@@ -210,9 +208,9 @@ def find_duplicate_files(hashes_on_1k):
     except OSError:
         print("An error occurred while accessing files. Please try again.")
 
-def search_duplicate_files(paths):
+def search_duplicate_files(path):
 
-    files_by_size, file_count = get_files_by_size(paths)
+    files_by_size, file_count = get_files_by_size(path)
     hashes_on_1k, hashes_on_1k_num = get_duplicate_files_hashes_and_count(files_by_size)
     duplicate_files, unique_file_hashes = find_duplicate_files(hashes_on_1k)
     print(unique_file_hashes)
