@@ -9,6 +9,7 @@ import math
 
 from backend.custom_models import PandasModel
 from backend.duplicates_checker import search_duplicate_files
+from backend.pandas_manager import PandasManager
 
 class WorkerKilledException(Exception):
     pass
@@ -36,6 +37,8 @@ class MyMainWindow(QMainWindow):
         self.worker_thread = QThread()
         self.folderButton.clicked.connect(self.openFolderDialog)
         self.openButton.clicked.connect(self.execute_function)
+
+        self.comboBox.activated.connect(self.onSelected)
         
         
     def load_ui(self):
@@ -55,7 +58,7 @@ class MyMainWindow(QMainWindow):
     def assignVariables(self):
 
         # QTableViews
-        self.allFilesView = self.window.findChild(QTableView, 'allFilesView')
+        self.hash_grouped_view = self.window.findChild(QTableView, 'allFilesView')
         self.duplicatesView = self.window.findChild(QTableView, 'duplicatesView')
         self.groupby_duplicatesView = self.window.findChild(QTableView, 'duplicatesView_3')
 
@@ -98,8 +101,8 @@ class MyMainWindow(QMainWindow):
 
     def on_worker_finished(self, result):
         # Process the received data (list of dictionaries) here
-        for item in result:
-            print(item)
+        self.pandas_data = PandasManager(result)
+        self.show_hash_grouped_table(0)
 
         self.worker_thread.quit()
         self.worker_thread.wait()
@@ -139,6 +142,29 @@ class MyMainWindow(QMainWindow):
         result = f"{size} {suffixes[exponent]}"
 
         return result
+
+    def onSelected(self, value):
+        
+        self.show_hash_grouped_table(value)
+
+    def show_hash_grouped_table(self, data):
+        
+        # Create a DataFrame from the given data
+        df = self.pandas_data.get_modified_group_dataframe(data)
+        
+        # Create a table model using the DataFrame
+        table_model = PandasModel(df)
+        
+        # Set the table view's model to the created model
+        self.hash_grouped_view.setModel(table_model)
+    
+        self.hash_grouped_view.horizontalHeader().setStretchLastSection(True)
+        self.hash_grouped_view.setAlternatingRowColors(True)
+        self.hash_grouped_view.setSelectionBehavior(QTableView.SelectRows)
+        self.hash_grouped_view.setSortingEnabled(True)
+        self.hash_grouped_view.sortByColumn(1,Qt.DescendingOrder)
+
+        
 
 
 if __name__ == "__main__":
