@@ -205,7 +205,7 @@ def find_duplicate_files(hashes_on_1k):
                 duplicate_files_list.append(data)
 
 
-        return duplicate_files, unique_file_hashes  # Return the duplicate file data and unique file hashes
+        return duplicate_files_list, unique_file_hashes  # Return the duplicate file data and unique file hashes
 
     except OSError:
         print("An error occurred while accessing files. Please try again.")
