@@ -7,7 +7,7 @@ from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 import math
 
-from backend.custom_models import PandasModel
+from backend.custom_models import PandasModel, SearchProxyModel, CustomProxyModel
 from backend.duplicates_checker import search_duplicate_files
 from backend.pandas_manager import PandasManager
 
@@ -103,6 +103,7 @@ class MyMainWindow(QMainWindow):
         # Process the received data (list of dictionaries) here
         self.pandas_data = PandasManager(result)
         self.show_hash_grouped_table(0)
+        self.show_specific_data()
 
         self.worker_thread.quit()
         self.worker_thread.wait()
@@ -164,7 +165,47 @@ class MyMainWindow(QMainWindow):
         self.hash_grouped_view.setSortingEnabled(True)
         self.hash_grouped_view.sortByColumn(1,Qt.DescendingOrder)
 
+        self.hash_grouped_view.clicked.connect(self.handle_table_click)
+
+    def show_specific_data(self):
         
+        df = self.pandas_data.get_dataframe_copy()
+
+        model = PandasModel(df)
+
+        self.searchModel = QSortFilterProxyModel() #No need for custom filter model
+        self.searchModel.setDynamicSortFilter(True)
+        self.searchModel.setFilterCaseSensitivity(Qt.CaseInsensitive)
+        self.searchModel.setFilterKeyColumn(0) # this will search in specific column
+        self.searchModel.setSourceModel(model)
+
+        self.groupby_duplicatesView.setModel(self.searchModel)
+
+        self.groupby_duplicatesView.horizontalHeader().setStretchLastSection(True)
+        self.groupby_duplicatesView.setAlternatingRowColors(True)
+        self.groupby_duplicatesView.setSelectionBehavior(QTableView.SelectRows)
+        self.groupby_duplicatesView.setSortingEnabled(True)
+        self.groupby_duplicatesView.sortByColumn(4,Qt.DescendingOrder)
+
+
+    def set_unique_info(self, value, idex):
+
+        total_size_single, total_files_single, total_duplicate_size_single = self.pandas_data.get_group_summary(value, idex)
+        self.total_size_single.setText(self.get_readable_size(total_size_single))
+        self.total_files_single.setText(str(total_files_single))
+        self.total_duplicate_size_single.setText(self.get_readable_size(total_duplicate_size_single))
+
+    def handle_table_click(self):
+        index = self.hash_grouped_view.selectionModel().currentIndex()
+        value = str(index.sibling(index.row(),0).data())
+        
+        idx = self.comboBox.currentIndex()
+        if idx == 0:    
+            self.searchModel.setFilterKeyColumn(3)
+        elif idx == 1:  
+            self.searchModel.setFilterKeyColumn(4)
+        self.searchModel.setFilterFixedString(value) 
+        self.set_unique_info(value, idx)
 
 
 if __name__ == "__main__":
