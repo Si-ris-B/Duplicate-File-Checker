@@ -5,13 +5,13 @@ from PySide6.QtGui import *
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
+import math
 
 from backend.custom_models import PandasModel
 from backend.duplicates_checker import search_duplicate_files
 
 class WorkerKilledException(Exception):
     pass
-
 
 class WorkerSignals(QObject):
     finished = Signal()
@@ -100,6 +100,42 @@ class MyMainWindow(QMainWindow):
         print("Task completed")
         self.worker_thread.quit()
         self.worker_thread.wait()
+    
+    def get_readable_size(self, size_bytes):
+        """
+        Convert bytes to a human-readable format.
+        
+        Args:
+            size_bytes (int): Size in bytes.
+
+        Returns:
+            str: Human-readable size.
+
+        Examples:
+            >>> get_readable_size(2048)
+            '2 KB'
+        """
+
+        # Check if size is zero
+        if size_bytes == 0:
+            return "0 B"
+
+        # Define size units and their abbreviations
+        suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+
+        # Calculate the appropriate suffix index based on logarithmic calculation
+        exponent = int(math.floor(math.log(size_bytes, 1024)))
+
+        # Calculate the divisor based on the suffix index
+        divisor = math.pow(1024, exponent)
+
+        # Calculate the size in the appropriate unit
+        size = round(size_bytes / divisor, 2)
+
+        # Format the result as a string with the size and unit
+        result = f"{size} {suffixes[exponent]}"
+
+        return result
 
 
 if __name__ == "__main__":
