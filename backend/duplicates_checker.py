@@ -125,7 +125,7 @@ def get_files_by_size(path, progress_callback):
             
     return files_by_size, file_count, total_files
 
-def get_duplicate_files_hashes_and_count(files_by_size):
+def get_duplicate_files_hashes_and_count(files_by_size, progress_callback):
     """
     This function calculates the count of duplicate files based on their sizes.
 
@@ -160,13 +160,15 @@ def get_duplicate_files_hashes_and_count(files_by_size):
                 # Increment the count of unique file hashes
                 hashes_on_1k_num += 1
 
+                progress_callback(hashes_on_1k_num, qualifying_file_count)
+
             except OSError:
                 # Ignore file access errors and continue to the next file
                 continue
 
     return hashes_on_1k, hashes_on_1k_num
 
-def find_duplicate_files(hashes_on_1k):
+def find_duplicate_files(hashes_on_1k, progress_callback):
     """
     Finds duplicate files based on hash values. For all files with the hash on the 1st 1024 bytes, get their hash on the full file - collisions will be duplicates
 
@@ -217,11 +219,12 @@ def find_duplicate_files(hashes_on_1k):
                 total_file_size += size
                 duplicate_files_list.append(data)
 
-
-        return duplicate_files_list, unique_file_hashes  # Return the duplicate file data and unique file hashes
+                progress_callback(duplicate_files_count, total_files)
 
     except OSError:
         print("An error occurred while accessing files. Please try again.")
+
+    return duplicate_files_list, unique_file_hashes  # Return the duplicate file data and unique file hashes
 
 def search_duplicate_files(path):
 

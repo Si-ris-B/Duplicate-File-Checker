@@ -15,8 +15,10 @@ class WorkerKilledException(Exception):
     pass
 
 class WorkerSignals(QObject):
-    finished = Signal(list, int)
+    finished = Signal(list)
     progress1 = Signal(int, int)
+    progress2 = Signal(int, int)
+    progress3 = Signal(int, int)
 
 class Worker(QObject):
 
@@ -27,11 +29,21 @@ class Worker(QObject):
 
     @Slot()
     def process(self):
-        files_by_size, progress, total_files = get_files_by_size(self.paths, self.update_progress_1)    
-        self.signals.finished.emit(files_by_size, total_files)
+        files_by_size, progress, total_files = get_files_by_size(self.paths, self.update_progress_1)
+        hashes_on_1k, hashes_on_1k_num = get_duplicate_files_hashes_and_count(files_by_size, self.update_progress_2)
+        duplicate_files, unique_file_hashes = find_duplicate_files(hashes_on_1k, self.update_progress_3)
+    
+        self.signals.finished.emit(duplicate_files)
+        # self.signals.finished.emit(files_by_size, total_files)
 
     def update_progress_1(self, progress, total):
         self.signals.progress1.emit(progress, total)
+
+    def update_progress_2(self, progress, total):
+        self.signals.progress2.emit(progress, total)
+
+    def update_progress_3(self, progress, total):
+        self.signals.progress3.emit(progress, total)
 
 class MyMainWindow(QMainWindow):
     def __init__(self):
@@ -99,13 +111,19 @@ class MyMainWindow(QMainWindow):
     def execute_function(self):
         paths = self.folderEdit.text()
         self.progress_bar_1.setValue(0)
+        self.progress_bar_2.setValue(0)
+        self.progress_bar_3.setValue(0)
 
         if not self.worker_thread.isRunning():
             self.worker = Worker(paths)
 
             self.worker.signals = WorkerSignals()
             self.worker.signals.finished.connect(self.on_worker_finished)
+
+            # Connect the progress signals to the worker's update_progress methods
             self.worker.signals.progress1.connect(self.update_progress_1)
+            self.worker.signals.progress2.connect(self.update_progress_2)
+            self.worker.signals.progress3.connect(self.update_progress_3)
 
             self.worker.moveToThread(self.worker_thread)
             self.worker_thread.started.connect(self.worker.process)
@@ -114,10 +132,10 @@ class MyMainWindow(QMainWindow):
 
     def on_worker_finished(self, result):
         # Process the received data (list of dictionaries) here
-        # self.pandas_data = PandasManager(result)
-        # self.show_hash_grouped_table(0)
-        # self.show_specific_data()
-        # self.show_all_data()
+        self.pandas_data = PandasManager(result)
+        self.show_hash_grouped_table(0)
+        self.show_specific_data()
+        self.show_all_data()
 
         self.worker_thread.quit()
         self.worker_thread.wait()
@@ -239,6 +257,18 @@ class MyMainWindow(QMainWindow):
         # Update the progress bar value
         percentage = int((progress / total) * 100)
         self.progress_bar_1.setValue(percentage)
+
+    @Slot(int, int)
+    def update_progress_2(self, progress, total):
+        # Update the progress bar value
+        percentage = int((progress / total) * 100)
+        self.progress_bar_2.setValue(percentage)
+
+    @Slot(int, int)
+    def update_progress_3(self, progress, total):
+        # Update the progress bar value
+        percentage = int((progress / total) * 100)
+        self.progress_bar_3.setValue(percentage)
 
 
 if __name__ == "__main__":
