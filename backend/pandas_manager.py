@@ -14,6 +14,11 @@ class PandasManager():
         self._dataframe['Total 1k Hashes'] = self._dataframe['Hash on 1k'].map(self._dataframe['Hash on 1k'].value_counts())
         
         self._dataframe['File Name'] = self._dataframe['FilePath'].apply(lambda x: Path(x).name)
+
+        desired_order = ['File Name','FilePath','Size', 'Hash', 'Hash on 1k',
+        'Size In Bytes', 'Modified Date', 'Creation Date','Total Hashes','Total 1k Hashes']
+        # Rearrange the columns
+        self._dataframe = self._dataframe.reindex(columns=desired_order)
         
         self.column_group_full_hash, self.median_group_by_full_hash = self.group_dataframe_by_column('Hash')
         self.column_group_1k, self.median_group_by_1k_hash = self.group_dataframe_by_column('Hash on 1k')
