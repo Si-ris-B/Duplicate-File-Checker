@@ -136,6 +136,7 @@ class MyMainWindow(QMainWindow):
         self.show_hash_grouped_table(0)
         self.show_specific_data()
         self.show_all_data()
+        self.setLabels(0)
 
         self.worker_thread.quit()
         self.worker_thread.wait()
@@ -239,6 +240,13 @@ class MyMainWindow(QMainWindow):
         self.total_size_single.setText(self.get_readable_size(total_size_single))
         self.total_files_single.setText(str(total_files_single))
         self.total_duplicate_size_single.setText(self.get_readable_size(total_duplicate_size_single))
+
+    def setLabels(self, idx):
+
+        self.total_size.setText(self.get_readable_size(self.pandas_data.get_total_filesize()))
+        self.total_duplicate_size.setText(self.get_readable_size(self.pandas_data.get_total_duplicates_size(idx)))
+        self.total_files.setText(str(self.pandas_data.get_total_files_count()))
+        self.total_unique_files.setText(str(self.pandas_data.get_unique_file_count(idx)))
 
     def handle_table_click(self):
         index = self.hash_grouped_view.selectionModel().currentIndex()
