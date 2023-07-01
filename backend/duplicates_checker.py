@@ -213,4 +213,4 @@ def search_duplicate_files(path):
     files_by_size, file_count = get_files_by_size(path)
     hashes_on_1k, hashes_on_1k_num = get_duplicate_files_hashes_and_count(files_by_size)
     duplicate_files, unique_file_hashes = find_duplicate_files(hashes_on_1k)
-    print(unique_file_hashes)
+    return duplicate_files

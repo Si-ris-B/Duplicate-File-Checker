@@ -14,7 +14,7 @@ class WorkerKilledException(Exception):
     pass
 
 class WorkerSignals(QObject):
-    finished = Signal()
+    finished = Signal(list)
 
 class Worker(QObject):
 
@@ -24,8 +24,8 @@ class Worker(QObject):
         self.signals = WorkerSignals()
 
     def process(self):
-        search_duplicate_files(self.paths)
-        self.signals.finished.emit()   
+        result = search_duplicate_files(self.paths)
+        self.signals.finished.emit(result)   
 
 class MyMainWindow(QMainWindow):
     def __init__(self):
@@ -96,8 +96,11 @@ class MyMainWindow(QMainWindow):
 
             self.worker_thread.start()
 
-    def on_worker_finished(self):
-        print("Task completed")
+    def on_worker_finished(self, result):
+        # Process the received data (list of dictionaries) here
+        for item in result:
+            print(item)
+
         self.worker_thread.quit()
         self.worker_thread.wait()
     
