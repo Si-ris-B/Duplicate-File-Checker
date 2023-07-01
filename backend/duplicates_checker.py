@@ -1,4 +1,3 @@
-import sys
 import os
 import hashlib
 from datetime import datetime
@@ -210,3 +209,10 @@ def find_duplicate_files(hashes_on_1k):
 
     except OSError:
         print("An error occurred while accessing files. Please try again.")
+
+def search_duplicate_files(paths):
+
+    files_by_size, file_count = get_files_by_size(paths)
+    hashes_on_1k, hashes_on_1k_num = get_duplicate_files_hashes_and_count(files_by_size)
+    duplicate_files, unique_file_hashes = find_duplicate_files(hashes_on_1k)
+    print(unique_file_hashes)
