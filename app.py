@@ -104,6 +104,7 @@ class MyMainWindow(QMainWindow):
         self.pandas_data = PandasManager(result)
         self.show_hash_grouped_table(0)
         self.show_specific_data()
+        self.show_all_data()
 
         self.worker_thread.quit()
         self.worker_thread.wait()
@@ -187,6 +188,19 @@ class MyMainWindow(QMainWindow):
         self.groupby_duplicatesView.setSortingEnabled(True)
         self.groupby_duplicatesView.sortByColumn(4,Qt.DescendingOrder)
 
+    def show_all_data(self):
+        
+        df = self.pandas_data.get_dataframe_copy()
+
+        model = PandasModel(df)
+
+        self.duplicatesView.setModel(model)
+
+        self.groupby_duplicatesView.horizontalHeader().setStretchLastSection(True)
+        self.groupby_duplicatesView.setAlternatingRowColors(True)
+        self.groupby_duplicatesView.setSelectionBehavior(QTableView.SelectRows)
+        self.groupby_duplicatesView.setSortingEnabled(True)
+        self.groupby_duplicatesView.sortByColumn(4,Qt.DescendingOrder)
 
     def set_unique_info(self, value, idex):
 
