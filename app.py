@@ -54,6 +54,7 @@ class MyMainWindow(QMainWindow):
         self.worker_thread = QThread()
         self.folderButton.clicked.connect(self.openFolderDialog)
         self.openButton.clicked.connect(self.execute_function)
+        self.exportButton.clicked.connect(self.save_to_csv)
 
         self.comboBox.activated.connect(self.onSelected)
         
@@ -82,6 +83,7 @@ class MyMainWindow(QMainWindow):
         #Buttons
         self.folderButton = self.window.findChild(QToolButton, 'folderButton')
         self.openButton = self.window.findChild(QPushButton, 'openButton')
+        self.exportButton = self.window.findChild(QPushButton, 'exportButton')
 
         # Qlabels
         self.total_size = self.window.findChild(QLabel, 'total_size')
@@ -296,6 +298,11 @@ class MyMainWindow(QMainWindow):
             menu.addAction(perm_delete_action)
 
             menu.exec_(self.duplicatesView.viewport().mapToGlobal(pos))
+
+    def save_to_csv(self):
+        
+        path = self.folderEdit.text()
+        self.pandas_data.save_dataframe_to_csv(path)
 
 
 if __name__ == "__main__":
