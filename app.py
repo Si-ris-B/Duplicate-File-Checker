@@ -139,11 +139,14 @@ class MyMainWindow(QMainWindow):
 
     def on_worker_finished(self, result):
         # Process the received data (list of dictionaries) here
-        self.pandas_data = PandasManager(result)
-        self.show_hash_grouped_table(0)
-        self.show_specific_data()
-        self.show_all_data()
-        self.setLabels(0)
+        if result:
+            self.pandas_data = PandasManager(result)
+            self.show_hash_grouped_table(0)
+            self.show_specific_data()
+            self.show_all_data()
+            self.setLabels(0)
+        else:
+            self.show_message("No Duplicate Files Found.")
 
         self.worker_thread.quit()
         self.worker_thread.wait()
@@ -313,6 +316,13 @@ class MyMainWindow(QMainWindow):
         msg_box = QMessageBox()
         msg_box.setIcon(QMessageBox.Critical)
         msg_box.setWindowTitle("Error")
+        msg_box.setText(message)
+        msg_box.exec()
+
+    def show_message(self, message):
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Information)
+        msg_box.setWindowTitle("Info")
         msg_box.setText(message)
         msg_box.exec()
 
