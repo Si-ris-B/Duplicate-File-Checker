@@ -88,7 +88,7 @@ class MyMainWindow(QMainWindow):
         # Qlabels
         self.total_size = self.window.findChild(QLabel, 'total_size')
         self.total_duplicate_size = self.window.findChild(QLabel, 'total_duplicate_size')
-        self.total_files = self.window.findChild(QLabel, 'total_files')
+        self.total_duplicate_files = self.window.findChild(QLabel, 'total_duplicate_files')
         self.total_unique_files = self.window.findChild(QLabel, 'total_unique_files')
         self.total_duplicate_size_single = self.window.findChild(QLabel, 'total_duplicate_size_single')
         self.total_files_single = self.window.findChild(QLabel, 'total_files_single')
@@ -258,7 +258,7 @@ class MyMainWindow(QMainWindow):
 
         self.total_size.setText(self.get_readable_size(self.pandas_data.get_total_filesize()))
         self.total_duplicate_size.setText(self.get_readable_size(self.pandas_data.get_total_duplicates_size(idx)))
-        self.total_files.setText(str(self.pandas_data.get_total_files_count()))
+        self.total_duplicate_files.setText(str(self.pandas_data.get_total_files_count()-self.pandas_data.get_unique_file_count(idx)))
         self.total_unique_files.setText(str(self.pandas_data.get_unique_file_count(idx)))
 
     def handle_table_click(self):
