@@ -111,26 +111,31 @@ class MyMainWindow(QMainWindow):
         self.folderEdit.setText(folderPath)
 
     def execute_function(self):
-        paths = self.folderEdit.text()
+        folder_path = self.folderEdit.text()
         self.progress_bar_1.setValue(0)
         self.progress_bar_2.setValue(0)
         self.progress_bar_3.setValue(0)
 
-        if not self.worker_thread.isRunning():
-            self.worker = Worker(paths)
+        if not folder_path:
+            self.show_error_message("Input is empty!")
+        elif not os.path.exists(folder_path) and not os.path.isdir(folder_path):
+            self.show_error_message(f"The folder '{folder_path}' does not exist.")
+        else:
+            if not self.worker_thread.isRunning():
+                self.worker = Worker(folder_path)
 
-            self.worker.signals = WorkerSignals()
-            self.worker.signals.finished.connect(self.on_worker_finished)
+                self.worker.signals = WorkerSignals()
+                self.worker.signals.finished.connect(self.on_worker_finished)
 
-            # Connect the progress signals to the worker's update_progress methods
-            self.worker.signals.progress1.connect(self.update_progress_1)
-            self.worker.signals.progress2.connect(self.update_progress_2)
-            self.worker.signals.progress3.connect(self.update_progress_3)
+                # Connect the progress signals to the worker's update_progress methods
+                self.worker.signals.progress1.connect(self.update_progress_1)
+                self.worker.signals.progress2.connect(self.update_progress_2)
+                self.worker.signals.progress3.connect(self.update_progress_3)
 
-            self.worker.moveToThread(self.worker_thread)
-            self.worker_thread.started.connect(self.worker.process)
+                self.worker.moveToThread(self.worker_thread)
+                self.worker_thread.started.connect(self.worker.process)
 
-            self.worker_thread.start()
+                self.worker_thread.start()
 
     def on_worker_finished(self, result):
         # Process the received data (list of dictionaries) here
@@ -303,6 +308,13 @@ class MyMainWindow(QMainWindow):
         
         path = self.folderEdit.text()
         self.pandas_data.save_dataframe_to_csv(path)
+    
+    def show_error_message(self, message):
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Critical)
+        msg_box.setWindowTitle("Error")
+        msg_box.setText(message)
+        msg_box.exec()
 
 
 if __name__ == "__main__":
