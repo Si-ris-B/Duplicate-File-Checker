@@ -267,9 +267,9 @@ class MyMainWindow(QMainWindow):
         
         idx = self.comboBox.currentIndex()
         if idx == 0:    
-            self.searchModel.setFilterKeyColumn(3)
-        elif idx == 1:  
             self.searchModel.setFilterKeyColumn(4)
+        elif idx == 1:  
+            self.searchModel.setFilterKeyColumn(5)
         self.searchModel.setFilterFixedString(value) 
         self.set_unique_info(value, idx)
 

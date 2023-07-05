@@ -17,8 +17,8 @@ class PandasManager():
         
         self._dataframe['File Name'] = self._dataframe['FilePath'].apply(lambda x: Path(x).name)
 
-        desired_order = ['File Name','FilePath','Size', 'Hash', 'Hash on 1k',
-        'Size In Bytes', 'Modified Date', 'Creation Date','Total Hashes','Total 1k Hashes']
+        desired_order = ['File Name','FilePath','Size', 'Size In Bytes', 'Hash', 'Hash on 1k',
+        'Modified Date', 'Creation Date','Total Hashes','Total 1k Hashes']
         # Rearrange the columns
         self._dataframe = self._dataframe.reindex(columns=desired_order)
         
