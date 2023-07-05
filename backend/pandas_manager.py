@@ -1,6 +1,8 @@
 import pandas as pd
 import math
 from pathlib import Path
+import datetime
+import json
 
 class PandasManager():
 
@@ -182,3 +184,41 @@ class PandasManager():
         duplicate_size = total_size - median_size
 
         return total_size, record_count, duplicate_size
+
+    def save_dataframe_to_csv(self, path):
+        """
+        Save DataFrame to a CSV file with the same headers and no index.
+        """
+        # Save the DataFrame to a CSV file
+        folder_path = Path(path)
+        file_name = folder_path.stem + '.csv'
+        filepath = Path('folder_analysis_data') / file_name
+        self._dataframe.to_csv(filepath, index=False)
+        self.save_metadata(file_name, path)
+
+    # Save CSV path and datetime to an JSON file
+    def save_metadata(self, file_name, path): 
+        # Get the current UTC time
+        current_time = datetime.datetime.utcnow()
+        # Format the time in a readable form
+        formatted_time = current_time.strftime('%Y-%m-%d %H:%M:%S UTC')
+
+        # Create JSON entry
+        csv_metadata = {
+            "path": path,
+            "save_datetime": formatted_time
+        }
+        json_path = 'folder_analysis_data/metadata.json'
+        # Load existing JSON file or create a new one
+        try:
+            with open(json_path, 'r') as jsonfile:
+                json_data = json.load(jsonfile)
+        except FileNotFoundError:
+            json_data = {}
+
+        # Append the new entry
+        json_data[file_name] = csv_metadata
+
+        # Save the updated JSON file
+        with open(json_path, 'w') as jsonfile:
+            json.dump(json_data, jsonfile, indent=4)     
