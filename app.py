@@ -45,6 +45,31 @@ class Worker(QObject):
     def update_progress_3(self, progress, total):
         self.signals.progress3.emit(progress, total)
 
+class ConfirmationDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("Confirmation")
+        self.setWindowIcon(self.style().standardIcon(QStyle.SP_MessageBoxInformation))
+
+        layout = QVBoxLayout(self)
+
+        message_label = QLabel("Delete (no way to undelete!)")
+        layout.addWidget(message_label)
+
+        button_layout = QHBoxLayout()
+
+        yes_button = QPushButton("Yes")
+        yes_button.clicked.connect(self.accept)
+        button_layout.addWidget(yes_button)
+
+        no_button = QPushButton("No")
+        no_button.clicked.connect(self.reject)
+        button_layout.addWidget(no_button)
+
+        layout.addLayout(button_layout)
+
+        
 class MyMainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -224,6 +249,9 @@ class MyMainWindow(QMainWindow):
 
         self.groupby_duplicatesView.setModel(self.searchModel)
 
+        self.groupby_duplicatesView.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.groupby_duplicatesView.customContextMenuRequested.connect(lambda pos: self.showContextMenu(pos, self.groupby_duplicatesView))
+
         self.groupby_duplicatesView.horizontalHeader().setStretchLastSection(True)
         self.groupby_duplicatesView.setAlternatingRowColors(True)
         self.groupby_duplicatesView.setSelectionBehavior(QTableView.SelectRows)
@@ -255,9 +283,16 @@ class MyMainWindow(QMainWindow):
             values.add(value)
         return values
 
-    def handle_multiple_selections(self, tableview):
+    def delete_multiple_selections(self, tableview):
         values = self.get_multiple_selections(tableview)
-        print(values)
+        for myfile in values:
+            # If file exists, delete it.
+            if os.path.isfile(myfile):
+                os.remove(myfile)
+                self.show_message(f"The file '{myfile}' has been permanently deleted.")
+            else:
+                # If it fails, inform the user.
+                self.show_error_message(f"The file '{myfile}' does not exist.")
 
     def set_unique_info(self, value, idex):
 
@@ -311,13 +346,13 @@ class MyMainWindow(QMainWindow):
             print(row)
             menu = QMenu(self)
 
-            print_action = QAction("Print Files", self)
-            print_action.triggered.connect(lambda: self.handle_multiple_selections(tableview))
-            menu.addAction(print_action)
+            # print_action = QAction("Print Files", self)
+            # print_action.triggered.connect(lambda: self.handle_multiple_selections(tableview))
+            # menu.addAction(print_action)
 
-            # delete_action = QAction("Delete", self)
-            # delete_action.triggered.connect(lambda: self.deleteRow(row))
-            # menu.addAction(delete_action)
+            delete_action = QAction("Delete", self)
+            delete_action.triggered.connect(lambda: self.show_confirmation_dialog(tableview))
+            menu.addAction(delete_action)
 
             # perm_delete_action = QAction("Permanent Delete", self)
             # perm_delete_action.triggered.connect(lambda: self.permanentDeleteRow(row))
@@ -343,6 +378,12 @@ class MyMainWindow(QMainWindow):
         msg_box.setWindowTitle("Info")
         msg_box.setText(message)
         msg_box.exec()
+
+    def show_confirmation_dialog(self, tableview):
+        dialog = ConfirmationDialog()
+        if dialog.exec() == QDialog.Accepted:
+            self.delete_multiple_selections(tableview)
+
 
 
 if __name__ == "__main__":
