@@ -235,7 +235,7 @@ class MyMainWindow(QMainWindow):
         df = self.pandas_data.get_dataframe_copy()
 
         self.duplicatesView.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.duplicatesView.customContextMenuRequested.connect(self.showContextMenu)
+        self.duplicatesView.customContextMenuRequested.connect(lambda pos: self.showContextMenu(pos, self.duplicatesView))
 
         model = PandasModel(df)
 
@@ -247,8 +247,8 @@ class MyMainWindow(QMainWindow):
         self.duplicatesView.setSortingEnabled(True)
         self.duplicatesView.sortByColumn(4,Qt.DescendingOrder)
 
-    def get_multiple_selections(self):
-        indexes = self.duplicatesView.selectionModel().selectedIndexes()
+    def get_multiple_selections(self, tableview):
+        indexes = tableview.selectionModel().selectedIndexes()
         values = set()
         for index in indexes:
             value = index.sibling(index.row(), 1).data()
@@ -256,9 +256,8 @@ class MyMainWindow(QMainWindow):
 
         return values
 
-    def handle_multiple_selections(self):
-        values = self.get_multiple_selections()
-        print(values)
+    def handle_multiple_selections(self, items):
+        print(items)
 
     def set_unique_info(self, value, idex):
 
@@ -304,25 +303,27 @@ class MyMainWindow(QMainWindow):
         percentage = int((progress / total) * 100)
         self.progress_bar_3.setValue(percentage)
 
-    def showContextMenu(self, pos):
-        current_item = self.duplicatesView.indexAt(pos)
+    def showContextMenu(self, pos, tableview):
+        current_item = tableview.indexAt(pos)
+        values = self.get_multiple_selections(tableview)
         if current_item is not None:
             row = current_item.row()
+            print(row)
             menu = QMenu(self)
 
             print_action = QAction("Print Files", self)
-            print_action.triggered.connect(self.handle_multiple_selections)
+            print_action.triggered.connect(lambda: self.handle_multiple_selections(values))
             menu.addAction(print_action)
 
-            delete_action = QAction("Delete", self)
-            delete_action.triggered.connect(lambda: self.deleteRow(row))
-            menu.addAction(delete_action)
+            # delete_action = QAction("Delete", self)
+            # delete_action.triggered.connect(lambda: self.deleteRow(row))
+            # menu.addAction(delete_action)
 
-            perm_delete_action = QAction("Permanent Delete", self)
-            perm_delete_action.triggered.connect(lambda: self.permanentDeleteRow(row))
-            menu.addAction(perm_delete_action)
+            # perm_delete_action = QAction("Permanent Delete", self)
+            # perm_delete_action.triggered.connect(lambda: self.permanentDeleteRow(row))
+            # menu.addAction(perm_delete_action)
 
-            menu.exec(self.duplicatesView.viewport().mapToGlobal(pos))
+            menu.exec(tableview.viewport().mapToGlobal(pos))
 
     def save_to_csv(self):
         
