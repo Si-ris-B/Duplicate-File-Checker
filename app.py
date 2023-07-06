@@ -253,11 +253,11 @@ class MyMainWindow(QMainWindow):
         for index in indexes:
             value = index.sibling(index.row(), 1).data()
             values.add(value)
-
         return values
 
-    def handle_multiple_selections(self, items):
-        print(items)
+    def handle_multiple_selections(self, tableview):
+        values = self.get_multiple_selections(tableview)
+        print(values)
 
     def set_unique_info(self, value, idex):
 
@@ -305,14 +305,14 @@ class MyMainWindow(QMainWindow):
 
     def showContextMenu(self, pos, tableview):
         current_item = tableview.indexAt(pos)
-        values = self.get_multiple_selections(tableview)
+        
         if current_item is not None:
             row = current_item.row()
             print(row)
             menu = QMenu(self)
 
             print_action = QAction("Print Files", self)
-            print_action.triggered.connect(lambda: self.handle_multiple_selections(values))
+            print_action.triggered.connect(lambda: self.handle_multiple_selections(tableview))
             menu.addAction(print_action)
 
             # delete_action = QAction("Delete", self)
