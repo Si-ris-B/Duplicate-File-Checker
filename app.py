@@ -247,6 +247,19 @@ class MyMainWindow(QMainWindow):
         self.duplicatesView.setSortingEnabled(True)
         self.duplicatesView.sortByColumn(4,Qt.DescendingOrder)
 
+    def get_multiple_selections(self):
+        indexes = self.duplicatesView.selectionModel().selectedIndexes()
+        values = set()
+        for index in indexes:
+            value = index.sibling(index.row(), 1).data()
+            values.add(value)
+
+        return values
+
+    def handle_multiple_selections(self):
+        values = self.get_multiple_selections()
+        print(values)
+
     def set_unique_info(self, value, idex):
 
         total_size_single, total_files_single, total_duplicate_size_single = self.pandas_data.get_group_summary(value, idex)
@@ -297,6 +310,10 @@ class MyMainWindow(QMainWindow):
             row = current_item.row()
             menu = QMenu(self)
 
+            print_action = QAction("Print Files", self)
+            print_action.triggered.connect(self.handle_multiple_selections)
+            menu.addAction(print_action)
+
             delete_action = QAction("Delete", self)
             delete_action.triggered.connect(lambda: self.deleteRow(row))
             menu.addAction(delete_action)
@@ -305,7 +322,7 @@ class MyMainWindow(QMainWindow):
             perm_delete_action.triggered.connect(lambda: self.permanentDeleteRow(row))
             menu.addAction(perm_delete_action)
 
-            menu.exec_(self.duplicatesView.viewport().mapToGlobal(pos))
+            menu.exec(self.duplicatesView.viewport().mapToGlobal(pos))
 
     def save_to_csv(self):
         
