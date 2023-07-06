@@ -262,9 +262,6 @@ class MyMainWindow(QMainWindow):
         
         df = self.pandas_data.get_dataframe_copy()
 
-        self.duplicatesView.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.duplicatesView.customContextMenuRequested.connect(lambda pos: self.showContextMenu(pos, self.duplicatesView))
-
         model = PandasModel(df)
 
         self.duplicatesView.setModel(model)
@@ -274,6 +271,9 @@ class MyMainWindow(QMainWindow):
         self.duplicatesView.setSelectionBehavior(QTableView.SelectRows)
         self.duplicatesView.setSortingEnabled(True)
         self.duplicatesView.sortByColumn(4,Qt.DescendingOrder)
+
+        self.duplicatesView.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.duplicatesView.customContextMenuRequested.connect(lambda pos: self.showContextMenu(pos, self.duplicatesView))
 
     def get_multiple_selections(self, tableview):
         indexes = tableview.selectionModel().selectedIndexes()
