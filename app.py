@@ -82,6 +82,7 @@ class MyMainWindow(QMainWindow):
         self.exportButton.clicked.connect(self.save_to_csv)
 
         self.comboBox.activated.connect(self.onSelected)
+        self.comboBox2.activated.connect(self.change_duplicate_view)
         
         
     def load_ui(self):
@@ -104,6 +105,7 @@ class MyMainWindow(QMainWindow):
         self.hash_grouped_view = self.window.findChild(QTableView, 'allFilesView')
         self.duplicatesView = self.window.findChild(QTableView, 'duplicatesView')
         self.groupby_duplicatesView = self.window.findChild(QTableView, 'duplicatesView_3')
+        self.df = None
 
         #Buttons
         self.folderButton = self.window.findChild(QToolButton, 'folderButton')
@@ -123,6 +125,7 @@ class MyMainWindow(QMainWindow):
         #LineEdit
         self.folderEdit = self.window.findChild(QLineEdit, 'folderEdit')
         self.comboBox = self.window.findChild(QComboBox, 'comboBox')
+        self.comboBox2 = self.window.findChild(QComboBox, 'comboBox_2')
 
         #ProgressBar
         self.progress_bar_1 =  self.window.findChild(QProgressBar, 'progressBar_1')
@@ -258,11 +261,23 @@ class MyMainWindow(QMainWindow):
         self.groupby_duplicatesView.setSortingEnabled(True)
         self.groupby_duplicatesView.sortByColumn(4,Qt.DescendingOrder)
 
+    def change_duplicate_view(self):
+        
+        idx = self.comboBox2.currentIndex()
+        if idx == 0:    
+            self.df = self.pandas_data.get_dataframe_copy()
+        elif idx == 1:  
+            self.df = self.pandas_data.get_excess_duplicates(True)
+        elif idx == 2:
+            self.df = self.pandas_data.get_excess_duplicates(False)
+        self.show_all_data()
+
     def show_all_data(self):
         
-        df = self.pandas_data.get_dataframe_copy()
+        if not isinstance(self.df, pd.DataFrame):
+            self.df = self.pandas_data.get_dataframe_copy()
 
-        model = PandasModel(df)
+        model = PandasModel(self.df)
 
         self.duplicatesView.setModel(model)
 
