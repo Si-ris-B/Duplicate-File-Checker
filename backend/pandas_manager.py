@@ -222,3 +222,9 @@ class PandasManager():
         # Save the updated JSON file
         with open(json_path, 'w') as jsonfile:
             json.dump(json_data, jsonfile, indent=4)     
+
+    def get_excess_duplicates(self, order):
+        df_sorted = self._dataframe.sort_values('Modified Date', ascending=order)
+        unique_files_df = df_sorted.groupby('Hash').nth(1).reset_index()
+        excess_duplicates_df = df_sorted.merge(unique_files_df, indicator=True, how='outer').loc[lambda x: x['_merge'] == 'left_only'].drop(columns='_merge')
+        return excess_duplicates_df
