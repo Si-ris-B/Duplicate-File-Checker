@@ -461,6 +461,7 @@ class MyMainWindow(QMainWindow):
             except Exception as e:
                 # Log any errors that occur while moving the file
                 logger.error(f"Error moving '{filepath}' to '{dest_dir_path}': {e}")
+        self.show_message(f"All Duplicate Files moved to {dest_dir_path}")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
