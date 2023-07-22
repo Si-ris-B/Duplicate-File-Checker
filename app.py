@@ -6,10 +6,12 @@ from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import *
 from PySide6.QtCore import *
 import math
-
+import shutil
+import logging
 from backend.custom_models import PandasModel, SearchProxyModel, CustomProxyModel
 from backend.duplicates_checker import *
 from backend.pandas_manager import PandasManager
+
 
 class WorkerKilledException(Exception):
     pass
@@ -83,6 +85,8 @@ class MyMainWindow(QMainWindow):
 
         self.comboBox.activated.connect(self.onSelected)
         self.comboBox2.activated.connect(self.change_duplicate_view)
+
+        self.moveButton.clicked.connect(self.move_files)
         
         
     def load_ui(self):
@@ -111,6 +115,7 @@ class MyMainWindow(QMainWindow):
         self.folderButton = self.window.findChild(QToolButton, 'folderButton')
         self.openButton = self.window.findChild(QPushButton, 'openButton')
         self.exportButton = self.window.findChild(QPushButton, 'exportButton')
+        self.moveButton = self.window.findChild(QPushButton, 'cleanFilesButton')
 
         # Qlabels
         self.total_size = self.window.findChild(QLabel, 'total_size')
@@ -139,18 +144,18 @@ class MyMainWindow(QMainWindow):
         self.folderEdit.setText(folderPath)
 
     def execute_function(self):
-        folder_path = self.folderEdit.text()
+        self.folder_path = self.folderEdit.text()
         self.progress_bar_1.setValue(0)
         self.progress_bar_2.setValue(0)
         self.progress_bar_3.setValue(0)
 
-        if not folder_path:
+        if not self.folder_path:
             self.show_error_message("Input is empty!")
-        elif not os.path.exists(folder_path) and not os.path.isdir(folder_path):
-            self.show_error_message(f"The folder '{folder_path}' does not exist.")
+        elif not os.path.exists(self.folder_path) and not os.path.isdir(self.folder_path):
+            self.show_error_message(f"The folder '{self.folder_path}' does not exist.")
         else:
             if not self.worker_thread.isRunning():
-                self.worker = Worker(folder_path)
+                self.worker = Worker(self.folder_path)
 
                 self.worker.signals = WorkerSignals()
                 self.worker.signals.finished.connect(self.on_worker_finished)
@@ -399,7 +404,63 @@ class MyMainWindow(QMainWindow):
         if dialog.exec() == QDialog.Accepted:
             self.delete_multiple_selections(tableview)
 
+    def move_files(self):
+        
+        idx = self.comboBox2.currentIndex()
+        if idx == 0:    
+            files_list = []
+        elif idx == 1:  
+            df = self.pandas_data.get_excess_duplicates(True)
+            files_list = df['FilePath'].tolist()
+        elif idx == 2:
+            df = self.pandas_data.get_excess_duplicates(False)
+            files_list = df['FilePath'].tolist()
 
+        # Create the destination subdirectory
+        dest_dir_path = os.path.join(self.folder_path, "duplicates_bin")
+        if not os.path.exists(dest_dir_path):
+            os.makedirs(dest_dir_path)
+
+        # Create a logger and set the log level to INFO
+        logger = logging.getLogger(__name__)
+        logger.setLevel(logging.INFO)
+
+        # Create a file handler to write the log messages to a log file
+        log_file_path = os.path.join(dest_dir_path, f'dup_move_files.log')
+        file_handler = logging.FileHandler(log_file_path)
+
+        # Create a formatter for the log messages
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        file_handler.setFormatter(formatter)
+
+        # Add the file handler to the logger
+        logger.addHandler(file_handler)
+
+        # Move each matching file to the destination subdirectory
+        for filepath in files_list:
+            try:
+                # Check if the file name already exists in the destination directory
+                file_name = os.path.basename(filepath)
+                dest_file_path = os.path.join(dest_dir_path, file_name)
+                file_name_without_ext = os.path.splitext(file_name)[0]
+                ext = os.path.splitext(file_name)[1]
+                suffix = 1
+
+                while os.path.exists(dest_file_path):
+                    # Rename the file with a suffix if it already exists in the destination directory
+                    new_file_name = f"{file_name_without_ext}_{suffix}{ext}"
+                    dest_file_path = os.path.join(dest_dir_path, new_file_name)
+                    suffix += 1
+
+                # Move the file to the destination subdirectory
+                shutil.move(filepath, dest_file_path)
+
+                # Log that the file has been moved successfully
+                logger.info(f"Moved '{filepath}' to '{dest_file_path}'")
+
+            except Exception as e:
+                # Log any errors that occur while moving the file
+                logger.error(f"Error moving '{filepath}' to '{dest_dir_path}': {e}")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
