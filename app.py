@@ -11,6 +11,7 @@ import logging
 from backend.custom_models import PandasModel, SearchProxyModel, CustomProxyModel
 from backend.duplicates_checker import *
 from backend.pandas_manager import PandasManager
+import pyperclip
 
 
 class WorkerKilledException(Exception):
@@ -378,6 +379,10 @@ class MyMainWindow(QMainWindow):
             open_action.triggered.connect(lambda: self.open_file_location(tableview))
             menu.addAction(open_action)
 
+            copy_name_action = QAction("Copy full path", self)
+            copy_name_action.triggered.connect(lambda: self.copy_file_location(tableview))
+            menu.addAction(copy_name_action)
+
             # perm_delete_action = QAction("Permanent Delete", self)
             # perm_delete_action.triggered.connect(lambda: self.permanentDeleteRow(row))
             # menu.addAction(perm_delete_action)
@@ -478,6 +483,10 @@ class MyMainWindow(QMainWindow):
                     subprocess.run(['xdg-open', file_directory])
             else:
                 print("File location does not exist.")
+
+    def copy_file_location(self, tableview):
+        values = self.get_multiple_selections(tableview)
+        pyperclip.copy(values.pop())
 
 
 if __name__ == "__main__":
