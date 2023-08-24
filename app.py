@@ -374,6 +374,10 @@ class MyMainWindow(QMainWindow):
             delete_action.triggered.connect(lambda: self.show_confirmation_dialog(tableview))
             menu.addAction(delete_action)
 
+            open_action = QAction("Open file manager here", self)
+            open_action.triggered.connect(lambda: self.open_file_location(tableview))
+            menu.addAction(open_action)
+
             # perm_delete_action = QAction("Permanent Delete", self)
             # perm_delete_action.triggered.connect(lambda: self.permanentDeleteRow(row))
             # menu.addAction(perm_delete_action)
@@ -462,6 +466,19 @@ class MyMainWindow(QMainWindow):
                 # Log any errors that occur while moving the file
                 logger.error(f"Error moving '{filepath}' to '{dest_dir_path}': {e}")
         self.show_message(f"All Duplicate Files moved to {dest_dir_path}")
+
+    def open_file_location(self, tableview):
+        values = self.get_multiple_selections(tableview)
+        for file_path in values:
+            file_directory = os.path.dirname(file_path)            
+            if os.path.exists(file_directory):
+                if os.name == 'nt':  # Windows
+                    subprocess.run(['explorer', '/select,', file_path], shell=True)
+                elif os.name == 'posix':  # Linux or Mac
+                    subprocess.run(['xdg-open', file_directory])
+            else:
+                print("File location does not exist.")
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
